@@ -3,3 +3,4 @@ tmp/
 wandb/
 .models/
 model-files/
+notes.txt
