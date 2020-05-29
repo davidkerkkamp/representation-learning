@@ -1,6 +1,6 @@
 import torch
-
 from AtariARIHandler import AtariARIHandler
+from MDPBuilder import MDPBuilder
 
 
 class Object(object):
@@ -34,12 +34,36 @@ handler = AtariARIHandler(args, wandb)
 gym_env = handler.get_gym_env()
 handler.probe_setup(ignore_labels)  # Train encoder/probe models, or load them if exist
 
+labels_to_use = ['ball_x', 'ball_y', 'player_y']  # Labels to use for MDP, other labels are not collected
+
+# Actions to use for MDP, for Pong only 3 actions are relevant: none (0), up (2) and down (5)
+# These correspond to actions defined by Arcade Learning Environment
+actions_to_use = [0, 2, 5]
+
+mdp_builder = MDPBuilder(labels_to_use, actions_to_use, log=False)
 obs = gym_env.reset()  # Reset env before use
-for i in range(400):
-    # gym_env.render()  # Render the game to the screen
-    obs, reward, done, info = gym_env.step(gym_env.action_space.sample())  # Perform step on env using given action
-    if done:
-        print('Resetting env')
+n_steps = 1000  # No. of steps to run on the Gym environment
+for i in range(n_steps):
+    # gym_env.render()  # Optionally render the game to the screen
+    action = mdp_builder.get_random_action()  # Get an action to apply on the env
+    obs, reward, done, info = gym_env.step(action)  # Perform step on env using given action
+    prediction = handler.predict(obs)  # Obtain prediction using observation from env
+    mdp_builder.add_state_info(prediction, action)  # Add the predicted info to the MDPBuilder
+
+    # Instead of prediction, MDP can be built using ground truth available in info['labels']
+    # mdp_builder.add_state_info(info['labels'], action)
+
+    if done:  # Game finished, reset env to continue
+        print(f'Resetting env (step {i})')
         gym_env.reset()
-    prediction = handler.predict(obs)
-    print(prediction)
+        mdp_builder.restart()  # Treat next observed state repr as initial state
+print(f'DONE: found {mdp_builder.num_states()} states')
+
+# - Save the MDPBuilder state to a file:
+# mdp_builder.save_builder_to_file('mdp_builder/mdp_1.pkl')
+# - Can be loaded to continue building later using code below:
+# mdp_builder = MDPBuilder(labels_to_use, actions_to_use)
+# mdp_builder.load_from_file('mdp_builder/mdp_1.pkl')
+
+# - Export MDP in given format
+# mdp_builder.build_model_file('mdp.pm', format='prism')
