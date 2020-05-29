@@ -33,10 +33,9 @@ class AtariARIHandler:
 
     def train_encoder(self, encoder):
         device = torch.device("cuda:" + str(self.args.cuda_id) if torch.cuda.is_available() else "cpu")
-        tr_episodes, val_episodes, \
-        tr_labels, val_labels, \
-        test_episodes, test_labels = get_episodes(env_name=self.args.env_name, steps=self.args.pretraining_steps,
-                                                  train_mode="train_encoder")
+        encoder = encoder.to(device)
+        tr_episodes, val_episodes = get_episodes(env_name=self.args.env_name, steps=self.args.pretraining_steps,
+                                                 train_mode="train_encoder")
         print('Obtained episodes for training encoder')
 
         torch.set_num_threads(1)
