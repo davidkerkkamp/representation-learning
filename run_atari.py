@@ -34,7 +34,8 @@ wandb.run = Object()
 wandb.run.dir = 'wandb'
 wandb.log = lambda a, step, commit: None
 
-ignore_labels = ['player_x', 'enemy_x']  # Labels to ignore when training/using probes
+# Labels to ignore when training/using probes. For labels that are ignored, no probes are trained or loaded.
+ignore_labels = ['player_x', 'enemy_x']
 handler = AtariARIHandler(args, wandb)
 gym_env = handler.get_gym_env()
 handler.probe_setup(ignore_labels)  # Train encoder/probe models, or load them if exist
