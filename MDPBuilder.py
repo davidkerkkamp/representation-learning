@@ -15,7 +15,7 @@ examples, see the run_atari.py file.
 
 
 class MDPBuilder:
-    def __init__(self, labels, actions, log=True, probability_decimals=2):
+    def __init__(self, labels, actions, log=True, probability_decimals=4):
         self.fresh_state_id = 0
         self.prev_state_id = None
         self.states_ids = {}
