@@ -2,6 +2,11 @@ import torch
 from AtariARIHandler import AtariARIHandler
 from MDPBuilder import MDPBuilder
 
+'''
+This file shows how to use the code in this project. By default for Pong, but it works for every of the 22 games 
+supported by https://github.com/mila-iqia/atari-representation-learning.
+'''
+
 
 class Object(object):
     pass
