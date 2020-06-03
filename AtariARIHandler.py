@@ -124,18 +124,25 @@ class AtariARIHandler:
         print('Encoder en probe setup complete')
 
     def predict(self, obs):
+        return self.predict_batch(np.array([obs]))[0]
+
+    # Requires NumPy array of shape (n, 210, 160, 1), filled with n observations
+    def predict_batch(self, obs_batch):
         assert self.probe_trainer is not None, 'ProbeTrainer is not initialized, call probetrainer_setup() first'
+        size = len(obs_batch)
         pt = self.probe_trainer
-        obs = obs.reshape(1, 1, 210, 160)
-        obs = torch.from_numpy(obs).float()
+        obs_batch = obs_batch.reshape(size, 1, 210, 160)
+        obs_batch = torch.from_numpy(obs_batch).float()
         with torch.no_grad():
             pt.encoder.to(self.args.device)
-            obs = obs.to(self.args.device)
-            f = pt.encoder(obs).detach()
+            obs_batch = obs_batch.to(self.args.device)
+            f = pt.encoder(obs_batch).detach()
         probes = pt.probes
-        preds = {}
+        preds = [{} for _ in range(size)]
         for i, k in enumerate(probes):
             probes[k].to(self.args.device)
             p = probes[k](f)
-            preds[k] = np.argmax(p.cpu().detach().numpy(), axis=1)[0]
+            p_result = np.argmax(p.cpu().detach().numpy(), axis=1)
+            for x in range(size):
+                preds[x][k] = p_result[x]
         return preds
