@@ -9,7 +9,7 @@ First follow installation instructions at https://github.com/mila-iqia/atari-rep
 
 ## Pipeline
 
-![pipeline](./images/pipeline.png "Pipeline")
+<img src="images/pipeline.png" alt="Pipeline" width="700">
 
 To learn a model of an Atari environment, a pipeline has been created. An overview of this is shown in image above. In this pipeline, an action is applied on the Gym environment (1) to obtain an observation (2) consisting of a matrix of grayscale values representing the game screen at that moment. The observation is given to the encoder (3) and linear probes (4) to obtain a prediction (5) of the state corresponding to the observation. The prediction and applied action are given to an MDP Builder (6), which collects this information for all observations produced by the environment. The MDP builder uses the predictions to identify states and transitions, and keeps a count of the number of occurrences of every transition. Finally an MDP (7) can be created, represented as a PRISM file.
 
@@ -46,9 +46,11 @@ so building of an MDP can be continued later. An MDP can be generated using eith
 
 ![pipeline](images/states.png "Pipeline")
 <br>Structure of dictionaries representing the states and transitions. Each entry has a state ID as key, and a dictionary as value with labels (the state representation) and transitions, which include the actions and number of occurrences.
+<hr>
 
-<img src="images/mdp.png" alt="MDP example" width="400">
-<br>Part of an MDP corresponding to image above}. The circles are states, the diamonds are actions. The dotted arrows represent transitions not shown here.
+<img src="images/mdp.png" alt="MDP example" width="300">
+<br>Part of an MDP corresponding to image above. The circles are states, the diamonds are actions. The dotted arrows represent transitions not shown here.
+<hr>
 
 #### Creating an `MDPBuilder` object
 The `MDPBuilder` constructor requires two arguments. The first is a list of label names to use for the MDP states. For some games many labels are available, but only a few might be desired for modeling the states of the MDP. The second argument is a list of actions to use. The Arcade Learning Environment (ALE) has a predefined discrete action space. For example, 1 is action 'fire', and 2 is 'up'. For every game that the encoder can create predictions for, the number of available actions is also defined. If a game has an action space of 6, then the actions 0 to 5 of ALE are available. However, some actions have no result, or the same result as another action. For example, Pong has action 'fire', but this has no result. For flexibility, the actions to use for the MDP can be defined by passing a list to the `MDPBuilder`. Note that the same actions have to be used for collecting frames from the Gym environment. See the code below for a usage example.
